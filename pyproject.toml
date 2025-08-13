@@ -1,5 +1,5 @@
 [project]
-name = "first-proj"
+name = "config"
 version = "0.1.0"
 description = ""
 authors = [
@@ -11,7 +11,6 @@ dependencies = [
     "django (>=5.2.5,<6.0.0)"
 ]
 
-
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
@@ -21,24 +20,14 @@ pytest = "^8.4.1"
 ruff = "^0.12.8"
 pre-commit = "^4.3.0"
 
-[tool.poetry.scripts]
-lint = "pre-commit run --all-files"
+##############################
 
 [tool.ruff]
-select = [
-    "E",
-    "F",
-    "I",
-    "UP",
-    "C90",
-    "B",
-    "Q",
-    "E501"
-]
-
+lint.select = ["E", "F", "W", "I", "UP"]
+lint.ignore = []
 line-length = 88
 
 fix = true
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["first-proj"]
