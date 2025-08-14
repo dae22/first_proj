@@ -27,8 +27,5 @@ lint.select = ["E", "F", "W", "DJ", "I", "UP"]
 lint.ignore = []
 line-length = 88
 
-format = true
-fix = true
-
 [tool.ruff.lint.isort]
 known-first-party = ["first-proj"]
