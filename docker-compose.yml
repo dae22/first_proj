@@ -1,0 +1,17 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: booking
+    environment:
+      POSTGRES_PASSWORD: 1998
+      POSTGRES_DB: booking_db
+    ports:
+        - "5430:5432"
+    volumes:
+        - ./pgdata:/var/lib/postgres/data/pgdata
+    restart: unless-stopped
+
+
+volumes:
+  pgdata:
+    driver: local
