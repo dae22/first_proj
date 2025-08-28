@@ -41,9 +41,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_extensions",
+    "rest_framework",
     "apartments.apps.ApartmentsConfig",
     "booking.apps.BookingConfig",
-    "rest_framework",
 ]
 
 MIDDLEWARE = [
@@ -94,8 +94,7 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation."
-        "UserAttributeSimilarityValidator",
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",

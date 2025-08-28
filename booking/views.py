@@ -1,37 +1,98 @@
-from django.http import HttpResponse, JsonResponse
+from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 
 from apartments.models import Apartments
 from booking.models import Booking
 
 
-@api_view(["POST"])
-def add_booking(request):
-    start = request.data.get("start")
-    end = request.data.get("end")
-    apartment = Apartments.objects.get(pk=request.data.get("apt_id"))
-    new_booking = Booking(apartment=apartment, start=start, end=end)
-    new_booking.save()
-    return JsonResponse({"booking_id": new_booking.pk})
+class BookingAPIView(APIView):
+    authentication_classes = []  # disables authentication
+    permission_classes = []
+
+    def get(self, request, apt_id):
+        bookings = Booking.objects.filter(apartment_id=apt_id)
+        if bookings.exists():
+            data = [
+                {
+                    "booking_id": b.pk,
+                    "start_date": b.start.isoformat(),
+                    "end_date": b.end.isoformat(),
+                }
+                for b in bookings
+            ]
+            data.sort(key=lambda x: x["start_date"])
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+        else:
+            return JsonResponse({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    def post(self, request):
+        apartment = get_object_or_404(Apartments, pk=request.data.get("apt_id"))
+        start = request.data.get("start")
+        end = request.data.get("end")
+        cross_booking = Booking.objects.filter(
+            (Q(start__lte=start) & Q(end__gt=start))
+            | (Q(start__lt=end) & Q(end__gte=end))
+            | (Q(start__gte=start) & Q(end__lte=end)),
+            apartment=apartment,
+        )
+        if not cross_booking.exists():
+            new_booking = Booking.objects.create(apartment=apartment, start=start, end=end)
+            return JsonResponse(
+                {"message": f"New booking added with id: {new_booking.pk}"},
+                status=status.HTTP_201_CREATED,
+            )
+        else:
+            return JsonResponse(
+                {"error": "Booking dates cross with other booking"},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+    def delete(self, request, booking_id):
+        booking = get_object_or_404(Booking, pk=booking_id)
+        booking.delete()
+        return JsonResponse({"message": "Booking deleted"}, status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(["GET"])
-def get_booking(request, apt_id):
-    bookings = Booking.objects.all()
-    data = [
-        {
-            "booking_id": b.pk,
-            "start_date": b.start.isoformat(),
-            "end_date": b.end.isoformat(),
-        }
-        for b in bookings
-    ]
-    data.sort(key=lambda x: x["start_date"])
-    return HttpResponse(data)
+# @api_view(["POST"])
+# def add_booking(request):
+#     apartment = get_object_or_404(Apartments, pk=request.data.get("apt_id"))
+#     start = request.data.get("start")
+#     end = request.data.get("end")
+#     cross_booking = Booking.objects.filter((Q(start__lte=start) & Q(end__gt=start)) |
+#                                               (Q(start__lt=end) & Q(end__gte=end)) |
+#                                               (Q(start__gte=start) & Q(end__lte=end)),
+#                                               apartment=apartment)
+#     if not cross_booking.exists():
+#         new_booking = Booking(apartment=apartment, start=start, end=end)
+#         new_booking.save()
+#         return JsonResponse({"message": f"New booking added with id: {new_booking.pk}"},
+#                             status=status.HTTP_201_CREATED)
+#     else:
+#         return JsonResponse({"error": "Booking dates cross with other booking"},
+#                             status=status.HTTP_409_CONFLICT)
 
 
-@api_view(["DELETE"])
-def delete_booking(request, booking_id):
-    booking = Booking.objects.get(pk=booking_id)
-    booking.delete()
-    return JsonResponse({"Delete booking": "success"})
+# @api_view(["GET"])
+# def get_booking(request, apt_id):
+#     bookings = Booking.objects.all()
+#     data = [
+#         {
+#             "booking_id": b.pk,
+#             "start_date": b.start.isoformat(),
+#             "end_date": b.end.isoformat(),
+#         }
+#         for b in bookings
+#     ]
+#     data.sort(key=lambda x: x["start_date"])
+#     return HttpResponse(data)
+
+
+# @api_view(["DELETE"])
+# def delete_booking(request, booking_id):
+#     booking = Booking.objects.get(pk=booking_id)
+#     booking.delete()
+#     return JsonResponse({"Delete booking": "success"})

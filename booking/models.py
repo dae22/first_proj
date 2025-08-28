@@ -4,7 +4,7 @@ from apartments.models import Apartments
 
 
 class Booking(models.Model):
-    apartment = models.ForeignKey(Apartments, on_delete=models.CASCADE)
+    apartment = models.ForeignKey(Apartments, on_delete=models.CASCADE, related_name="bookings")
     start = models.DateField()
     end = models.DateField()
 
