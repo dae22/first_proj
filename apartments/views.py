@@ -1,4 +1,4 @@
-from rest_framework import generics, mixins, status
+from rest_framework import generics, mixins
 
 from apartments.models import Apartments
 from apartments.serializers import ApartmentSerializer

@@ -5,3 +5,4 @@ venv
 *.cache
 *.sqlite3
 .env
+.coverage
