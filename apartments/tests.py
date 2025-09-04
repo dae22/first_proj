@@ -12,13 +12,23 @@ def client():
 
 
 @pytest.mark.django_db
-def test_apart_create():
+def test_apart_create_model():
     apartment = Apartments.objects.create(description="test description", price=10000)
 
     assert Apartments.objects.count() == 1
     assert apartment.description == "test description"
     assert apartment.price == 10000
     assert apartment.pk is not None
+
+
+@pytest.mark.django_db
+def test_apart_create_api(client):
+    url = reverse("apartments-list")
+    response = client.post(url, {"description": "test description", "price": 10000})
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert Apartments.objects.count() == 1
+    assert "id" in response.data
 
 
 @pytest.mark.django_db
@@ -34,7 +44,7 @@ def test_aparts_list(client):
 
 
 @pytest.mark.django_db
-def test_apartment_delete_1(client):
+def test_apartment_delete_204(client):
     apartment = Apartments.objects.create(description="To delete", price=5000)
     apt_count = Apartments.objects.count()
 
@@ -47,7 +57,7 @@ def test_apartment_delete_1(client):
 
 
 @pytest.mark.django_db
-def test_apartment_delete_2(client):
+def test_apartment_delete_404(client):
     url = reverse("apartment-details", kwargs={"pk": 10**10})
     response = client.delete(url)
 
