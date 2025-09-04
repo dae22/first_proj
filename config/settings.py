@@ -27,9 +27,9 @@ environ.Env.read_env(BASE_DIR / ".env")
 SECRET_KEY = "django-insecure-%zxy4-1)s!6x93xf==3!)b%a14$h-ouki7**^ci_!)0%7oe4rd"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
 
 # Application definition
 
@@ -83,8 +83,8 @@ DATABASES = {
         "NAME": "booking_db",
         "USER": "postgres",
         "PASSWORD": env("DB_PASSWORD"),
-        "HOST": "localhost",
-        "PORT": "5430",
+        "HOST": "db",
+        "PORT": "5432",
     }
 }
 
